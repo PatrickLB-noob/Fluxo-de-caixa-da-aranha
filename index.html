@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teia do Caixa 2.0</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="web-bg web-bg-top"></div>
+  <div class="web-bg web-bg-bottom"></div>
+
+  <header class="header">
+    <button class="menu-btn" aria-label="Voltar ao início" id="btnHome">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="brand">
+      <span class="brand-icon">🕷️</span>
+      <div>
+        <h1>Teia do Caixa <span>2.0</span></h1>
+        <p>Fluxo de caixa e estoque inicial para salão</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero screen active" id="homeScreen">
+      <p class="tag">Sistema em desenvolvimento</p>
+      <h2>Com grandes serviços vêm grandes controles.</h2>
+      <p>
+        Agora a versão 2.0 também separa os clientes que ainda estão com pagamento fiado.
+      </p>
+
+      <div class="hero-actions">
+        <button class="primary-btn" data-open="caixaScreen">Abrir fluxo de caixa</button>
+        <button class="secondary-btn" data-open="atendimentoScreen">Novo atendimento</button>
+      </div>
+    </section>
+
+    <section class="cards screen active" id="cardsScreen">
+      <article class="card" data-open="atendimentoScreen">
+        <span class="card-icon">💇‍♀️</span>
+        <h3>Novo atendimento</h3>
+        <p>Registre cliente, serviço, valor e data/hora. O pagamento é confirmado depois.</p>
+      </article>
+
+      <article class="card" data-open="agendaScreen">
+        <span class="card-icon">📅</span>
+        <h3>Agenda</h3>
+        <p>Veja os próximos atendimentos organizados por data e horário.</p>
+      </article>
+
+      <article class="card" data-open="caixaScreen">
+        <span class="card-icon">💰</span>
+        <h3>Fluxo de caixa</h3>
+        <p>Registre ganhos, gastos, saldo e lucro simplificado.</p>
+      </article>
+
+      <article class="card" data-open="estoqueScreen">
+        <span class="card-icon">🧴</span>
+        <h3>Estoque</h3>
+        <p>Cadastre produtos, valor individual e quantidade atual.</p>
+      </article>
+
+
+      <article class="card" data-open="relatoriosScreen">
+        <span class="card-icon">📊</span>
+        <h3>Relatórios</h3>
+        <p>Veja ganhos, gastos, lucro e quantidade de clientes mês a mês.</p>
+      </article>
+
+      <article class="card" data-open="fiadosScreen">
+        <span class="card-icon">🧾</span>
+        <h3>Fiados</h3>
+        <p>Veja os clientes que fizeram serviço e ainda ficaram devendo.</p>
+      </article>
+    </section>
+
+    <section class="preview screen active" id="preview">
+      <div>
+        <p class="tag">Resumo rápido</p>
+        <h2>Hoje na teia</h2>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-box entrada-box">
+          <span>Ganhos</span>
+          <strong id="homeEntradas">R$ 0,00</strong>
+        </div>
+        <div class="summary-box saida-box">
+          <span>Gastos</span>
+          <strong id="homeSaidas">R$ 0,00</strong>
+        </div>
+        <div class="summary-box highlight">
+          <span>Lucro/Saldo</span>
+          <strong id="homeSaldo">R$ 0,00</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen app-panel" id="caixaScreen">
+      <div class="panel-title">
+        <div>
+          <p class="tag">Módulo financeiro</p>
+          <h2>Fluxo de caixa</h2>
+        </div>
+        <button class="secondary-btn small-btn" data-open="homeScreen">Voltar</button>
+      </div>
+
+      <form class="cash-form" id="cashForm">
+        <div class="type-switch">
+          <label class="type-option entrada active">
+            <input type="radio" name="tipo" value="entrada" checked />
+            Ganho / Entrada
+          </label>
+          <label class="type-option saida">
+            <input type="radio" name="tipo" value="saida" />
+            Gasto / Saída
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Descrição
+            <input type="text" id="descricao" placeholder="Ex: Escova, tintura, aluguel..." required />
+          </label>
+
+          <label>
+            Valor
+            <input type="number" id="valor" placeholder="0,00" min="0.01" step="0.01" inputmode="decimal" required />
+          </label>
+
+          <label>
+            Categoria
+            <select id="categoria" required>
+              <option value="Serviço">Serviço</option>
+              <option value="Produto vendido">Produto vendido</option>
+              <option value="Produto comprado">Produto comprado</option>
+              <option value="Conta fixa">Conta fixa</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </label>
+
+          <label>
+            Pagamento
+            <select id="pagamento" required>
+              <option value="Pix">Pix</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Cartão">Cartão</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </label>
+
+          <label>
+            Data
+            <input type="date" id="data" required />
+          </label>
+        </div>
+
+        <button class="primary-btn full-btn" type="submit" id="submitBtn">Salvar lançamento</button>
+      </form>
+
+      <div class="summary-grid cash-summary">
+        <div class="summary-box entrada-box">
+          <span>Ganhos do mês</span>
+          <strong id="mesEntradas">R$ 0,00</strong>
+        </div>
+        <div class="summary-box saida-box">
+          <span>Gastos do mês</span>
+          <strong id="mesSaidas">R$ 0,00</strong>
+        </div>
+        <div class="summary-box highlight">
+          <span>Lucro simplificado</span>
+          <strong id="mesSaldo">R$ 0,00</strong>
+        </div>
+      </div>
+
+      <div class="history-head">
+        <h3>Histórico</h3>
+        <div class="history-actions">
+          <select id="filtro">
+            <option value="todos">Todos</option>
+            <option value="mes">Este mês</option>
+            <option value="hoje">Hoje</option>
+            <option value="entrada">Ganhos</option>
+            <option value="saida">Gastos</option>
+          </select>
+          <button class="danger-btn" id="limparTudo" type="button">Limpar tudo</button>
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        Nenhum lançamento preso na teia ainda.
+      </div>
+
+      <div class="transactions" id="transactions"></div>
+    </section>
+
+    <section class="screen app-panel" id="estoqueScreen">
+      <div class="panel-title">
+        <div>
+          <p class="tag">Módulo de estoque</p>
+          <h2>Produtos do salão</h2>
+        </div>
+        <button class="secondary-btn small-btn" data-open="homeScreen">Voltar</button>
+      </div>
+
+      <div class="stock-top-actions">
+        <button class="primary-btn" id="abrirFormProduto" type="button">+ Adicionar produto</button>
+        <p>Cadastre primeiro o nome e o valor individual. Toque em um produto da lista para ajustar a quantidade.</p>
+      </div>
+
+      <form class="cash-form hidden-form" id="productForm">
+        <div class="form-grid product-grid">
+          <label>
+            Nome do produto
+            <input type="text" id="produtoNome" placeholder="Ex: Shampoo, progressiva, tinta..." required />
+          </label>
+
+          <label>
+            Valor individual
+            <input type="number" id="produtoValor" placeholder="Ex: 120,00" min="0.01" step="0.01" inputmode="decimal" required />
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button class="primary-btn" type="submit">Salvar produto</button>
+          <button class="secondary-btn" id="cancelarProduto" type="button">Cancelar</button>
+        </div>
+      </form>
+
+      <div class="summary-grid cash-summary">
+        <div class="summary-box highlight">
+          <span>Produtos cadastrados</span>
+          <strong id="totalProdutos">0</strong>
+        </div>
+        <div class="summary-box saida-box">
+          <span>Valor total em estoque</span>
+          <strong id="totalEstoqueValor">R$ 0,00</strong>
+        </div>
+        <div class="summary-box entrada-box">
+          <span>Quantidade total</span>
+          <strong id="totalEstoqueItens">0</strong>
+        </div>
+      </div>
+
+      <div class="history-head">
+        <h3>Lista de produtos</h3>
+        <button class="danger-btn" id="limparEstoque" type="button">Limpar estoque</button>
+      </div>
+
+      <div class="empty-state" id="emptyProducts">
+        Nenhum produto cadastrado ainda.
+      </div>
+
+      <div class="products compact-products" id="products"></div>
+    </section>
+
+
+    <section class="screen app-panel" id="atendimentoScreen">
+      <div class="panel-title">
+        <div>
+          <p class="tag">Módulo de atendimento</p>
+          <h2>Novo atendimento</h2>
+        </div>
+        <button class="secondary-btn small-btn" data-open="homeScreen">Voltar</button>
+      </div>
+
+      <form class="cash-form" id="appointmentForm">
+        <div class="form-grid">
+          <label>
+            Nome da cliente
+            <input type="text" id="clienteNome" placeholder="Ex: Ana, Maria, Joana..." required />
+          </label>
+
+          <label>
+            Nome do serviço
+            <input type="text" id="atendimentoServicoManual" placeholder="Ex: Corte, escova, progressiva..." required />
+          </label>
+
+          <label>
+            Valor cobrado
+            <input type="number" id="atendimentoValor" placeholder="0,00" min="0.01" step="0.01" inputmode="decimal" required />
+          </label>
+
+          <label>
+            Data e hora do atendimento
+            <input type="datetime-local" id="atendimentoDataHora" required />
+          </label>
+
+        </div>
+
+        <button class="primary-btn full-btn" type="submit">Salvar atendimento</button>
+      </form>
+
+      <div class="history-head">
+        <h3>Atendimentos em aberto</h3>
+        <button class="danger-btn" id="limparAtendimentos" type="button">Limpar atendimentos</button>
+      </div>
+
+      <div class="empty-state" id="emptyAppointments">Nenhum atendimento em aberto ainda.</div>
+      <div class="service-list" id="appointmentsList"></div>
+    </section>
+
+    <section class="screen app-panel" id="agendaScreen">
+      <div class="panel-title">
+        <div>
+          <p class="tag">Agenda</p>
+          <h2>Próximos horários</h2>
+        </div>
+        <button class="secondary-btn small-btn" data-open="homeScreen">Voltar</button>
+      </div>
+
+      <div class="agenda-app">
+        <div class="agenda-toolbar">
+          <button class="icon-btn" id="agendaPrevDay" type="button" aria-label="Dia anterior">‹</button>
+          <div class="agenda-date-title">
+            <span id="agendaDataAtual">Hoje</span>
+            <input type="date" id="agendaDatePicker" aria-label="Escolher data da agenda" />
+          </div>
+          <button class="icon-btn" id="agendaNextDay" type="button" aria-label="Próximo dia">›</button>
+        </div>
+
+        <button class="secondary-btn full-btn" id="agendaToday" type="button">Voltar para hoje</button>
+
+        <div class="agenda-days" id="agendaDiaLista"></div>
+
+        <div class="agenda-day-panel">
+          <div class="agenda-day-head">
+            <h3>Horários do dia</h3>
+            <button class="primary-btn small-btn" data-open="atendimentoScreen" data-from-agenda="true" type="button">+ Novo atendimento</button>
+          </div>
+
+          <div class="empty-state" id="emptySchedule">Nenhum horário marcado para este dia.</div>
+          <div class="agenda-list" id="scheduleList"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="screen app-panel" id="fiadosScreen">
+      <div class="panel-title">
+        <div>
+          <p class="tag">Controle de fiados</p>
+          <h2>Clientes pendentes</h2>
+        </div>
+        <button class="secondary-btn small-btn" data-open="homeScreen">Voltar</button>
+      </div>
+
+      <div class="summary-grid cash-summary">
+        <div class="summary-box saida-box">
+          <span>Total fiado</span>
+          <strong id="fiadoTotalValor">R$ 0,00</strong>
+        </div>
+        <div class="summary-box highlight">
+          <span>Clientes devendo</span>
+          <strong id="fiadoTotalClientes">0</strong>
+        </div>
+        <div class="summary-box">
+          <span>Serviços fiados</span>
+          <strong id="fiadoTotalAtendimentos">0</strong>
+        </div>
+      </div>
+
+      <div class="history-head">
+        <h3>Lista de fiados</h3>
+        <p class="report-hint">Quando receber, toque em “Marcar como pago” para enviar o valor ao caixa.</p>
+      </div>
+
+      <div class="empty-state" id="emptyFiados">Nenhum cliente fiado no momento.</div>
+      <div class="service-list" id="fiadosList"></div>
+    </section>
+
+
+    <section class="screen app-panel" id="relatoriosScreen">
+      <div class="panel-title">
+        <div>
+          <p class="tag">Relatórios</p>
+          <h2>Análise mensal</h2>
+        </div>
+        <button class="secondary-btn small-btn" data-open="homeScreen">Voltar</button>
+      </div>
+
+      <div class="report-filter">
+        <label>
+          Mês analisado
+          <select id="reportMonthSelect"></select>
+        </label>
+      </div>
+
+      <div class="summary-grid cash-summary">
+        <div class="summary-box entrada-box">
+          <span>Ganhos do mês</span>
+          <strong id="reportGanhos">R$ 0,00</strong>
+        </div>
+        <div class="summary-box saida-box">
+          <span>Gastos do mês</span>
+          <strong id="reportGastos">R$ 0,00</strong>
+        </div>
+        <div class="summary-box highlight">
+          <span>Lucro / saldo</span>
+          <strong id="reportLucro">R$ 0,00</strong>
+        </div>
+      </div>
+
+      <div class="summary-grid cash-summary">
+        <div class="summary-box">
+          <span>Clientes do mês</span>
+          <strong id="reportClientes">0</strong>
+        </div>
+        <div class="summary-box entrada-box">
+          <span>Atendimentos pagos</span>
+          <strong id="reportPagos">0</strong>
+        </div>
+        <div class="summary-box saida-box">
+          <span>Fiado / pendente</span>
+          <strong id="reportAbertos">0</strong>
+        </div>
+      </div>
+
+      <div class="history-head">
+        <h3>Mês a mês</h3>
+        <p class="report-hint">Os ganhos e gastos vêm do fluxo de caixa. Clientes vêm da agenda.</p>
+      </div>
+
+      <div class="empty-state" id="emptyReports">Nenhum dado suficiente para gerar relatório ainda.</div>
+      <div class="report-list" id="reportList"></div>
+    </section>
+
+  </main>
+
+  <div class="stock-modal" id="stockModal" aria-hidden="true">
+    <div class="modal-backdrop" id="fecharModalEstoque"></div>
+
+    <div class="stock-modal-card" role="dialog" aria-modal="true" aria-labelledby="modalProdutoNome">
+      <div class="modal-head">
+        <div>
+          <p class="tag">Ajustar estoque</p>
+          <h3 id="modalProdutoNome">Produto</h3>
+        </div>
+        <button class="icon-btn" id="fecharModalProduto" type="button" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="modal-stock-info">
+        <div>
+          <span>Valor individual</span>
+          <strong id="modalValorIndividual">R$ 0,00</strong>
+        </div>
+        <div>
+          <span>Valor total</span>
+          <strong id="modalValorTotal">R$ 0,00</strong>
+        </div>
+      </div>
+
+      <div class="quantity-control modal-quantity">
+        <button class="icon-btn big-step" id="modalDiminuir" type="button">−</button>
+        <input type="number" id="modalQuantidade" min="0" step="0.1" inputmode="decimal" aria-label="Quantidade do produto" />
+        <button class="icon-btn big-step" id="modalAumentar" type="button">+</button>
+      </div>
+
+      <p class="modal-hint">Os botões mudam de 1 em 1. Se precisar, digite um número quebrado manualmente.</p>
+
+      <div class="form-actions modal-actions">
+        <button class="primary-btn" id="salvarModalProduto" type="button">Salvar quantidade</button>
+        <button class="danger-btn" id="apagarModalProduto" type="button">Apagar produto</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Mensagem</div>
+  <script src="script.js"></script>
+</body>
+</html>
