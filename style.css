@@ -1417,3 +1417,35 @@ input[type="number"] {
     grid-column: auto;
   }
 }
+
+
+/* Ajuste 2.9: modal de estoque mais alto e estável no celular */
+#stockModal.stock-modal {
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  overflow: hidden !important;
+}
+
+#stockModal .modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+#stockModal .stock-modal-card {
+  position: fixed !important;
+  top: clamp(44px, 8svh, 92px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: min(620px, calc(100vw - 24px)) !important;
+  max-height: calc(100svh - clamp(70px, 12svh, 120px)) !important;
+  overflow-y: auto !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 620px) {
+  #stockModal .stock-modal-card {
+    top: 42px !important;
+    max-height: calc(100svh - 64px) !important;
+  }
+}

@@ -386,11 +386,13 @@ function openProductModal(id) {
   renderModalProduto();
   stockModal.classList.add('active');
   stockModal.setAttribute('aria-hidden', 'false');
-  setTimeout(() => modalQuantidade.focus(), 60);
+  if (document.activeElement) document.activeElement.blur();
 }
 
 function closeProductModal() {
   produtoAbertoId = null;
+  modalQuantidade.blur();
+  modalValorProdutoInput.blur();
   stockModal.classList.remove('active');
   stockModal.setAttribute('aria-hidden', 'true');
 }
