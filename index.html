@@ -460,7 +460,7 @@
 
       <div class="modal-stock-info">
         <div>
-          <span>Valor individual</span>
+          <span>Valor individual atual</span>
           <strong id="modalValorIndividual">R$ 0,00</strong>
         </div>
         <div>
@@ -468,6 +468,11 @@
           <strong id="modalValorTotal">R$ 0,00</strong>
         </div>
       </div>
+
+      <label class="modal-product-value">
+        Novo valor individual
+        <input type="number" id="modalValorProdutoInput" min="0.01" step="0.01" inputmode="decimal" placeholder="Ex: 120,00" />
+      </label>
 
       <div class="quantity-control modal-quantity">
         <button class="icon-btn big-step" id="modalDiminuir" type="button">−</button>
@@ -478,7 +483,7 @@
       <p class="modal-hint">Os botões mudam de 1 em 1. Se precisar, digite um número quebrado manualmente.</p>
 
       <div class="form-actions modal-actions">
-        <button class="primary-btn" id="salvarModalProduto" type="button">Salvar quantidade</button>
+        <button class="primary-btn" id="salvarModalProduto" type="button">Salvar alterações</button>
         <button class="danger-btn" id="apagarModalProduto" type="button">Apagar produto</button>
       </div>
     </div>

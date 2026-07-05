@@ -34,6 +34,7 @@ const stockModal = document.getElementById('stockModal');
 const modalProdutoNome = document.getElementById('modalProdutoNome');
 const modalValorIndividual = document.getElementById('modalValorIndividual');
 const modalValorTotal = document.getElementById('modalValorTotal');
+const modalValorProdutoInput = document.getElementById('modalValorProdutoInput');
 const modalQuantidade = document.getElementById('modalQuantidade');
 const modalDiminuir = document.getElementById('modalDiminuir');
 const modalAumentar = document.getElementById('modalAumentar');
@@ -376,6 +377,7 @@ function renderModalProduto() {
   modalProdutoNome.textContent = produto.nome;
   modalValorIndividual.textContent = formatMoney(produto.valorIndividual);
   modalValorTotal.textContent = formatMoney(produto.valorIndividual * produto.quantidade);
+  modalValorProdutoInput.value = produto.valorIndividual;
   modalQuantidade.value = produto.quantidade;
 }
 
@@ -402,9 +404,25 @@ function changeModalQuantity(step) {
 
 function saveModalQuantity() {
   if (!produtoAbertoId) return;
-  updateProductQuantity(produtoAbertoId, Number(modalQuantidade.value));
+
+  const produto = getProdutoAberto();
+  if (!produto) return;
+
+  const novoValor = Number(modalValorProdutoInput.value);
+  const novaQuantidade = Number(modalQuantidade.value);
+
+  if (novoValor <= 0) {
+    showToast('Digite um valor individual válido.');
+    modalValorProdutoInput.focus();
+    return;
+  }
+
+  produto.valorIndividual = novoValor;
+  produto.quantidade = Math.max(0, novaQuantidade || 0);
+  saveProducts();
+  renderEstoque();
   renderModalProduto();
-  showToast('Quantidade atualizada.');
+  showToast('Produto atualizado.');
 }
 
 function renderEstoque() { renderProductSummary(); renderProducts(); }
@@ -1001,10 +1019,14 @@ modalAumentar.addEventListener('click', () => changeModalQuantity(1));
 salvarModalProduto.addEventListener('click', saveModalQuantity);
 fecharModalProduto.addEventListener('click', closeProductModal);
 fecharModalEstoque.addEventListener('click', closeProductModal);
-modalQuantidade.addEventListener('input', () => {
-  const produto = getProdutoAberto();
-  if (produto) modalValorTotal.textContent = formatMoney(produto.valorIndividual * (Number(modalQuantidade.value) || 0));
-});
+function updateModalProductTotalPreview() {
+  const valor = Number(modalValorProdutoInput.value) || 0;
+  const quantidade = Number(modalQuantidade.value) || 0;
+  modalValorTotal.textContent = formatMoney(valor * quantidade);
+}
+
+modalQuantidade.addEventListener('input', updateModalProductTotalPreview);
+modalValorProdutoInput.addEventListener('input', updateModalProductTotalPreview);
 
 apagarModalProduto.addEventListener('click', () => {
   const produto = getProdutoAberto();
