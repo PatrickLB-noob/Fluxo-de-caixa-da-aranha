@@ -1310,3 +1310,85 @@ input[type="number"] {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Ajuste 2.7: modal de edição maior e centralizado */
+#appointmentEditModal {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+#appointmentEditModal .modal-backdrop {
+  background: rgba(0, 0, 0, .76);
+  backdrop-filter: blur(10px);
+}
+
+#appointmentEditModal .stock-modal-card {
+  width: min(820px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: clamp(22px, 4vw, 34px);
+  border-radius: 30px;
+}
+
+#appointmentEditModal .modal-head {
+  margin-bottom: 24px;
+}
+
+#appointmentEditModal .modal-head h3 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+#appointmentEditModal .modal-form {
+  padding: clamp(18px, 3vw, 24px);
+  border-radius: 26px;
+}
+
+#appointmentEditModal .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+#appointmentEditModal .form-grid label:nth-child(4) {
+  grid-column: 1 / -1;
+}
+
+#appointmentEditModal input {
+  min-height: 50px;
+  font-size: 1rem;
+}
+
+#appointmentEditModal .modal-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+#appointmentEditModal .modal-actions button {
+  min-height: 52px;
+}
+
+@media (max-width: 720px) {
+  #appointmentEditModal {
+    align-items: center;
+    padding: 14px;
+  }
+
+  #appointmentEditModal .stock-modal-card {
+    width: 100%;
+    max-height: calc(100vh - 28px);
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  #appointmentEditModal .form-grid,
+  #appointmentEditModal .modal-actions {
+    grid-template-columns: 1fr;
+  }
+
+  #appointmentEditModal .form-grid label:nth-child(4) {
+    grid-column: auto;
+  }
+}
