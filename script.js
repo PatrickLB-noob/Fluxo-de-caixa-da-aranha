@@ -59,6 +59,15 @@ const atendimentoStatusPagamentoInput = document.getElementById('atendimentoStat
 const appointmentsList = document.getElementById('appointmentsList');
 const emptyAppointments = document.getElementById('emptyAppointments');
 const limparAtendimentosBtn = document.getElementById('limparAtendimentos');
+const appointmentEditModal = document.getElementById('appointmentEditModal');
+const appointmentEditForm = document.getElementById('appointmentEditForm');
+const editClienteNomeInput = document.getElementById('editClienteNome');
+const editAtendimentoServicoInput = document.getElementById('editAtendimentoServico');
+const editAtendimentoValorInput = document.getElementById('editAtendimentoValor');
+const editAtendimentoDataHoraInput = document.getElementById('editAtendimentoDataHora');
+const fecharModalAtendimento = document.getElementById('fecharModalAtendimento');
+const fecharModalAtendimentoBtn = document.getElementById('fecharModalAtendimentoBtn');
+const cancelarEdicaoAtendimentoBtn = document.getElementById('cancelarEdicaoAtendimento');
 const scheduleList = document.getElementById('scheduleList');
 const emptySchedule = document.getElementById('emptySchedule');
 const agendaDataAtual = document.getElementById('agendaDataAtual');
@@ -93,6 +102,7 @@ atendimentos = atendimentos.map(normalizeAppointmentShape);
 let produtoAbertoId = null;
 let selectedAgendaDate = todayISO();
 let currentScreenId = 'homeScreen';
+let atendimentoEditandoId = null;
 
 function showToast(message) {
   toast.textContent = message;
@@ -802,6 +812,64 @@ if (atendimentoServicoInput) {
   });
 }
 
+
+function openAppointmentEditModal(id) {
+  const appointment = atendimentos.find(item => item.id === id);
+  if (!appointment) return;
+
+  atendimentoEditandoId = id;
+  editClienteNomeInput.value = appointment.cliente || '';
+  editAtendimentoServicoInput.value = appointment.servicoNome || '';
+  editAtendimentoValorInput.value = appointment.valor || '';
+  editAtendimentoDataHoraInput.value = appointment.dataHora || nowDateTimeLocal();
+
+  appointmentEditModal.classList.add('active');
+  appointmentEditModal.setAttribute('aria-hidden', 'false');
+  setTimeout(() => editClienteNomeInput.focus(), 60);
+}
+
+function closeAppointmentEditModal() {
+  atendimentoEditandoId = null;
+  appointmentEditForm.reset();
+  appointmentEditModal.classList.remove('active');
+  appointmentEditModal.setAttribute('aria-hidden', 'true');
+}
+
+function saveAppointmentEdit(event) {
+  event.preventDefault();
+  const appointment = atendimentos.find(item => item.id === atendimentoEditandoId);
+  if (!appointment) return;
+
+  const valorEditado = Number(editAtendimentoValorInput.value);
+  if (valorEditado <= 0 || !editAtendimentoDataHoraInput.value) {
+    showToast('Valor ou data/hora inválidos.');
+    return;
+  }
+
+  appointment.cliente = editClienteNomeInput.value.trim();
+  appointment.servicoNome = editAtendimentoServicoInput.value.trim();
+  appointment.valor = valorEditado;
+  appointment.dataHora = editAtendimentoDataHoraInput.value;
+
+  if (appointment.lancamentoId) {
+    const lancamento = lancamentos.find(item => item.id === appointment.lancamentoId);
+    if (lancamento) {
+      const { date } = dateTimeParts(appointment.dataHora);
+      lancamento.descricao = `${appointment.servicoNome || 'Serviço'} - ${appointment.cliente || 'Cliente'}`;
+      lancamento.valor = appointment.valor;
+      lancamento.data = date;
+      saveCash();
+    }
+  }
+
+  selectedAgendaDate = dateTimeParts(appointment.dataHora).date;
+  saveAppointments();
+  renderOperacional();
+  renderFinanceiro();
+  closeAppointmentEditModal();
+  showToast('Atendimento editado.');
+}
+
 appointmentForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const valor = Number(atendimentoValorInput.value);
@@ -875,33 +943,7 @@ document.addEventListener('click', (event) => {
   }
 
   if (editAppointment) {
-    const id = Number(editAppointment.dataset.editAppointment);
-    const appointment = atendimentos.find(item => item.id === id);
-    if (!appointment) return;
-
-    const novoCliente = prompt('Cliente:', appointment.cliente || '');
-    if (novoCliente === null) return;
-    const novoServico = prompt('Serviço:', appointment.servicoNome || '');
-    if (novoServico === null) return;
-    const novoValor = prompt('Valor cobrado:', appointment.valor);
-    if (novoValor === null) return;
-    const novoDataHora = prompt('Data e hora (AAAA-MM-DDTHH:MM):', appointment.dataHora);
-    if (novoDataHora === null) return;
-
-    const valorEditado = Number(String(novoValor).replace(',', '.'));
-    if (valorEditado <= 0 || !novoDataHora.includes('T')) {
-      showToast('Valor ou data/hora inválidos.');
-      return;
-    }
-
-    appointment.cliente = novoCliente.trim();
-    appointment.servicoNome = novoServico.trim();
-    appointment.valor = valorEditado;
-    appointment.dataHora = novoDataHora;
-    selectedAgendaDate = dateTimeParts(appointment.dataHora).date;
-    saveAppointments();
-    renderOperacional();
-    showToast('Atendimento editado.');
+    openAppointmentEditModal(Number(editAppointment.dataset.editAppointment));
   }
 
   if (markAppointmentPaid) {
@@ -972,6 +1014,12 @@ apagarModalProduto.addEventListener('click', () => {
   closeProductModal();
 });
 
+
+appointmentEditForm.addEventListener('submit', saveAppointmentEdit);
+fecharModalAtendimento.addEventListener('click', closeAppointmentEditModal);
+fecharModalAtendimentoBtn.addEventListener('click', closeAppointmentEditModal);
+cancelarEdicaoAtendimentoBtn.addEventListener('click', closeAppointmentEditModal);
+
 document.getElementById('btnHome').addEventListener('click', () => {
   if (currentScreenId === 'homeScreen') {
     openScreen('homeScreen');
@@ -987,15 +1035,34 @@ filtroInput.addEventListener('change', renderLancamentos);
 
 limparTudoBtn.addEventListener('click', () => {
   if (!lancamentos.length) return showToast('Não existe nada para apagar.');
-  if (!confirm('Tem certeza que deseja apagar todos os lançamentos?')) return;
-  lancamentos = [];
-  atendimentos.forEach(item => item.lancamentoId = null);
+
+  const hoje = new Date(`${todayISO()}T00:00`);
+  const seteDiasAtras = new Date(hoje);
+  seteDiasAtras.setDate(hoje.getDate() - 6);
+
+  const idsUltimaSemana = lancamentos
+    .filter(item => {
+      if (!item.data) return false;
+      const dataItem = new Date(`${item.data}T00:00`);
+      return dataItem >= seteDiasAtras && dataItem <= hoje;
+    })
+    .map(item => item.id);
+
+  if (!idsUltimaSemana.length) return showToast('Não há lançamentos da última semana para apagar.');
+  if (!confirm('Apagar somente os lançamentos feitos nos últimos 7 dias? Lançamentos antigos deverão ser apagados manualmente.')) return;
+
+  lancamentos = lancamentos.filter(item => !idsUltimaSemana.includes(item.id));
+  atendimentos.forEach(item => {
+    if (idsUltimaSemana.includes(item.lancamentoId)) item.lancamentoId = null;
+  });
+
   saveCash();
   saveAppointments();
   renderFinanceiro();
   renderOperacional();
-  showToast('Todos os lançamentos foram apagados.');
+  showToast('Lançamentos da última semana apagados.');
 });
+
 
 limparEstoqueBtn.addEventListener('click', () => {
   if (!produtos.length) return showToast('Não existe produto para apagar.');
