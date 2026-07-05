@@ -574,7 +574,9 @@ function renderAgendaDayStrip() {
     button.className = `agenda-day ${date === selectedAgendaDate ? 'active' : ''} ${hasAppointment ? 'has-appointment' : ''}`;
     button.dataset.agendaDate = date;
     button.innerHTML = `
-      <small class="agenda-spider" aria-label="Dia com atendimento">🕷️</small>
+      <span class="agenda-spider spider-icon" aria-label="Dia com atendimento">
+        <img src="spider-logo.png" alt="" />
+      </span>
       <span>${formatShortWeekDay(date)}</span>
       <strong>${date.slice(8, 10)}</strong>
     `;

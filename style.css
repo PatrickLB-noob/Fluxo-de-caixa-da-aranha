@@ -76,7 +76,21 @@ body::before {
 }
 .menu-btn span { width: 18px; height: 2px; background: var(--text); border-radius: 10px; }
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand-icon { font-size: 2rem; filter: drop-shadow(0 0 8px rgba(255, 38, 60, 0.6)); }
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.22));
+  flex: 0 0 auto;
+}
+
+.spider-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
 .brand h1 { font-size: clamp(1.2rem, 3vw, 1.8rem); }
 .brand h1 span { color: var(--red); }
 .brand p { color: var(--muted); font-size: 0.88rem; }
@@ -564,10 +578,13 @@ input[type="number"] {
 }
 
 .agenda-spider {
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
   opacity: 0;
   transform: translateY(2px) scale(.88);
-  font-size: .95rem;
-  line-height: 1;
+  color: var(--red);
   filter: drop-shadow(0 0 8px rgba(255, 45, 85, .45));
 }
 
@@ -862,7 +879,8 @@ input[type="number"] {
   }
 
   .brand-icon {
-    font-size: 1.55rem;
+    width: 34px;
+    height: 34px;
   }
 
   .brand h1 {
