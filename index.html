@@ -24,6 +24,28 @@
     </div>
   </header>
 
+  <div class="side-menu-overlay" id="sideMenuOverlay"></div>
+  <aside class="side-menu" id="sideMenu" aria-hidden="true">
+    <div class="side-menu-head">
+      <div>
+        <p class="tag">Menu rápido</p>
+        <h2>Teia do Caixa</h2>
+      </div>
+      <button class="icon-btn" id="closeSideMenu" type="button" aria-label="Fechar menu">×</button>
+    </div>
+
+    <nav class="side-menu-list">
+      <button data-open="homeScreen" type="button">🏠 Início</button>
+      <button data-open="atendimentoScreen" type="button">💇‍♀️ Novo atendimento</button>
+      <button data-open="agendaScreen" type="button">📅 Agenda</button>
+      <button data-open="caixaScreen" type="button">💰 Fluxo de caixa</button>
+      <button data-open="estoqueScreen" type="button">🧴 Estoque</button>
+      <button data-open="fiadosScreen" type="button">🧾 Fiados</button>
+      <button data-open="relatoriosScreen" type="button">📊 Relatórios</button>
+    </nav>
+  </aside>
+
+
   <main class="container">
     <section class="hero screen active" id="homeScreen">
       <p class="tag">Sistema em desenvolvimento</p>
@@ -122,25 +144,13 @@
 
         <div class="form-grid">
           <label>
-            Descrição
-            <input type="text" id="descricao" placeholder="Ex: Escova, tintura, aluguel..." required />
+            Categoria
+            <select id="categoria" required></select>
           </label>
 
           <label>
             Valor
             <input type="number" id="valor" placeholder="0,00" min="0.01" step="0.01" inputmode="decimal" required />
-          </label>
-
-          <label>
-            Categoria
-            <select id="categoria" required>
-              <option value="Serviço">Serviço</option>
-              <option value="Produto vendido">Produto vendido</option>
-              <option value="Produto comprado">Produto comprado</option>
-              <option value="Conta fixa">Conta fixa</option>
-              <option value="Transporte">Transporte</option>
-              <option value="Outro">Outro</option>
-            </select>
           </label>
 
           <label>
@@ -151,6 +161,11 @@
               <option value="Cartão">Cartão</option>
               <option value="Outro">Outro</option>
             </select>
+          </label>
+
+          <label>
+            Notas
+            <input type="text" id="descricao" placeholder="Opcional" />
           </label>
 
           <label>
@@ -271,13 +286,13 @@
       <form class="cash-form" id="appointmentForm">
         <div class="form-grid">
           <label>
-            Nome da cliente
-            <input type="text" id="clienteNome" placeholder="Ex: Ana, Maria, Joana..." required />
+            Cliente
+            <input type="text" id="clienteNome" placeholder="Opcional" />
           </label>
 
           <label>
             Nome do serviço
-            <input type="text" id="atendimentoServicoManual" placeholder="Ex: Corte, escova, progressiva..." required />
+            <input type="text" id="atendimentoServicoManual" placeholder="Opcional" />
           </label>
 
           <label>

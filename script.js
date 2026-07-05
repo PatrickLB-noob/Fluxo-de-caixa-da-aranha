@@ -4,6 +4,9 @@ const SERVICE_STORAGE_KEY = 'teiaDoCaixaServicos';
 const APPOINTMENT_STORAGE_KEY = 'teiaDoCaixaAtendimentos';
 
 const toast = document.getElementById('toast');
+const sideMenu = document.getElementById('sideMenu');
+const sideMenuOverlay = document.getElementById('sideMenuOverlay');
+const closeSideMenuBtn = document.getElementById('closeSideMenu');
 const screens = document.querySelectorAll('.screen');
 const homeScreens = ['homeScreen', 'cardsScreen', 'preview'];
 
@@ -89,6 +92,7 @@ servicos = servicos.map(normalizeServiceShape);
 atendimentos = atendimentos.map(normalizeAppointmentShape);
 let produtoAbertoId = null;
 let selectedAgendaDate = todayISO();
+let currentScreenId = 'homeScreen';
 
 function showToast(message) {
   toast.textContent = message;
@@ -157,9 +161,9 @@ function normalizeServiceShape(servico) {
 function normalizeAppointmentShape(item) {
   return {
     id: Number(item.id) || Date.now(),
-    cliente: item.cliente || 'Cliente sem nome',
+    cliente: item.cliente ?? '',
     servicoId: item.servicoId ? Number(item.servicoId) : null,
-    servicoNome: item.servicoNome || item.servico || 'Serviço manual',
+    servicoNome: item.servicoNome ?? item.servico ?? '',
     valor: Number(item.valor) || 0,
     dataHora: item.dataHora || `${item.data || todayISO()}T${item.hora || item.inicio || '09:00'}`,
     statusPagamento: item.statusPagamento || (item.lancamentoId ? 'pago' : 'pendente'),
@@ -190,7 +194,7 @@ function createCashEntryFromAppointment(item) {
   lancamentos.push({
     id: lancamentoId,
     tipo: 'entrada',
-    descricao: `${item.servicoNome} - ${item.cliente}`,
+    descricao: `${displayServiceName(item)} - ${displayClientName(item)}`,
     valor: item.valor,
     categoria: 'Serviço',
     pagamento: 'Pix',
@@ -198,7 +202,29 @@ function createCashEntryFromAppointment(item) {
   });
 }
 
+function displayClientName(item) {
+  return (item?.cliente || '').trim() || 'Cliente';
+}
+
+function displayServiceName(item) {
+  return (item?.servicoNome || '').trim() || 'Serviço';
+}
+
+function openSideMenu() {
+  sideMenu?.classList.add('active');
+  sideMenuOverlay?.classList.add('active');
+  sideMenu?.setAttribute('aria-hidden', 'false');
+}
+
+function closeSideMenu() {
+  sideMenu?.classList.remove('active');
+  sideMenuOverlay?.classList.remove('active');
+  sideMenu?.setAttribute('aria-hidden', 'true');
+}
+
 function openScreen(id) {
+  currentScreenId = id;
+  closeSideMenu();
   if (id === 'relatoriosScreen') renderReports();
   if (id === 'fiadosScreen') renderFiados();
   screens.forEach(screen => screen.classList.remove('active'));
@@ -266,6 +292,18 @@ function updateTypeVisual() {
   document.querySelectorAll('.type-option').forEach(label => label.classList.remove('active'));
   const selected = document.querySelector('input[name="tipo"]:checked');
   if (selected) selected.closest('.type-option').classList.add('active');
+  updateCategoryOptions();
+}
+
+function updateCategoryOptions() {
+  if (!categoriaInput) return;
+  const tipo = document.querySelector('input[name="tipo"]:checked')?.value || 'entrada';
+  const options = tipo === 'entrada'
+    ? ['Produto vendido', 'Serviço', 'Outros']
+    : ['Produto comprado', 'Conta fixa', 'Outros'];
+  const current = categoriaInput.value;
+  categoriaInput.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join('');
+  if (options.includes(current)) categoriaInput.value = current;
 }
 
 function addProduct(nome, valorIndividual) {
@@ -473,12 +511,13 @@ function renderAppointments() {
     div.innerHTML = `
       <span class="badge ${status.className}">${status.label}</span>
       <div>
-        <h4>${item.cliente}</h4>
-        <p>${item.servicoNome} • ${date.split('-').reverse().join('/')} às ${time}</p>
+        <h4>${displayClientName(item)}</h4>
+        <p>${displayServiceName(item)} • ${date.split('-').reverse().join('/')} às ${time}</p>
       </div>
       <div class="item-right appointment-actions">
         <strong>${formatMoney(item.valor)}</strong>
         <div class="action-row">
+          <button class="secondary-btn tiny-btn" data-edit-appointment="${item.id}" type="button">Editar</button>
           <button class="secondary-btn tiny-btn" data-appointment-fiado="${item.id}" type="button">Fiado</button>
           <button class="primary-btn tiny-btn" data-appointment-paid="${item.id}" type="button">Pago</button>
           <button class="icon-btn" data-delete-appointment="${item.id}" title="Apagar atendimento">🗑️</button>
@@ -535,8 +574,8 @@ function renderSchedule() {
       <div class="agenda-time">${time}</div>
       <div class="agenda-card">
         <div>
-          <h4>${item.cliente}</h4>
-          <p>${item.servicoNome}</p>
+          <h4>${displayClientName(item)}</h4>
+          <p>${displayServiceName(item)}</p>
         </div>
         <div class="agenda-card-side">
           <span class="badge ${status.className}">${status.label}</span>
@@ -679,8 +718,8 @@ function renderFiados() {
     div.innerHTML = `
       <span class="badge saida">Fiado</span>
       <div>
-        <h4>${item.cliente}</h4>
-        <p>${item.servicoNome} • ${date.split('-').reverse().join('/')} às ${time}</p>
+        <h4>${displayClientName(item)}</h4>
+        <p>${displayServiceName(item)} • ${date.split('-').reverse().join('/')} às ${time}</p>
       </div>
       <div class="item-right appointment-actions">
         <strong>${formatMoney(item.valor)}</strong>
@@ -711,7 +750,7 @@ cashForm.addEventListener('submit', (event) => {
   const novoLancamento = {
     id: Date.now(),
     tipo: document.querySelector('input[name="tipo"]:checked').value,
-    descricao: descricaoInput.value.trim(),
+    descricao: descricaoInput.value.trim() || categoriaInput.value,
     valor,
     categoria: categoriaInput.value,
     pagamento: pagamentoInput.value,
@@ -767,8 +806,8 @@ appointmentForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const valor = Number(atendimentoValorInput.value);
   const { servicoId, servicoNome } = getServiceNameForAppointment();
-  if (!clienteNomeInput.value.trim() || !servicoNome || valor <= 0 || !atendimentoDataHoraInput.value) {
-    return showToast('Preencha cliente, serviço, valor e data/hora.');
+  if (valor <= 0 || !atendimentoDataHoraInput.value) {
+    return showToast('Preencha valor e data/hora. Cliente e serviço podem ficar em branco.');
   }
   const atendimento = {
     id: Date.now(),
@@ -815,6 +854,7 @@ document.addEventListener('click', (event) => {
   const disabledCard = event.target.closest('.card.disabled');
   const deleteService = event.target.closest('[data-delete-service]');
   const deleteAppointment = event.target.closest('[data-delete-appointment]');
+  const editAppointment = event.target.closest('[data-edit-appointment]');
   const markAppointmentPaid = event.target.closest('[data-appointment-paid]');
   const markAppointmentFiado = event.target.closest('[data-appointment-fiado]');
 
@@ -832,6 +872,36 @@ document.addEventListener('click', (event) => {
     saveServices();
     renderServices();
     showToast('Serviço apagado.');
+  }
+
+  if (editAppointment) {
+    const id = Number(editAppointment.dataset.editAppointment);
+    const appointment = atendimentos.find(item => item.id === id);
+    if (!appointment) return;
+
+    const novoCliente = prompt('Cliente:', appointment.cliente || '');
+    if (novoCliente === null) return;
+    const novoServico = prompt('Serviço:', appointment.servicoNome || '');
+    if (novoServico === null) return;
+    const novoValor = prompt('Valor cobrado:', appointment.valor);
+    if (novoValor === null) return;
+    const novoDataHora = prompt('Data e hora (AAAA-MM-DDTHH:MM):', appointment.dataHora);
+    if (novoDataHora === null) return;
+
+    const valorEditado = Number(String(novoValor).replace(',', '.'));
+    if (valorEditado <= 0 || !novoDataHora.includes('T')) {
+      showToast('Valor ou data/hora inválidos.');
+      return;
+    }
+
+    appointment.cliente = novoCliente.trim();
+    appointment.servicoNome = novoServico.trim();
+    appointment.valor = valorEditado;
+    appointment.dataHora = novoDataHora;
+    selectedAgendaDate = dateTimeParts(appointment.dataHora).date;
+    saveAppointments();
+    renderOperacional();
+    showToast('Atendimento editado.');
   }
 
   if (markAppointmentPaid) {
@@ -902,7 +972,16 @@ apagarModalProduto.addEventListener('click', () => {
   closeProductModal();
 });
 
-document.getElementById('btnHome').addEventListener('click', () => openScreen('homeScreen'));
+document.getElementById('btnHome').addEventListener('click', () => {
+  if (currentScreenId === 'homeScreen') {
+    openScreen('homeScreen');
+    return;
+  }
+  openSideMenu();
+});
+
+closeSideMenuBtn?.addEventListener('click', closeSideMenu);
+sideMenuOverlay?.addEventListener('click', closeSideMenu);
 document.querySelectorAll('input[name="tipo"]').forEach(input => input.addEventListener('change', updateTypeVisual));
 filtroInput.addEventListener('change', renderLancamentos);
 
