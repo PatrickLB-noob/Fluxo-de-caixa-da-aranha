@@ -575,7 +575,7 @@ function renderAgendaDayStrip() {
     button.dataset.agendaDate = date;
     button.innerHTML = `
       <span class="agenda-spider spider-icon" aria-label="Dia com atendimento">
-        <img src="spider-logo.png" alt="" />
+        <img class="spider-logo-img" src="spider-logo.png" alt="" width="18" height="18" />
       </span>
       <span>${formatShortWeekDay(date)}</span>
       <strong>${date.slice(8, 10)}</strong>

@@ -1504,3 +1504,67 @@ input[type="number"] {
   align-items: center;
   gap: 12px;
 }
+
+
+/* Correção definitiva do logo da aranha: impede a imagem original de estourar no PC */
+img.spider-logo-img,
+img[src$="spider-logo.png"] {
+  display: block;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
+.brand-icon,
+.brand-icon.spider-icon {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  max-width: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  overflow: hidden !important;
+  display: inline-grid !important;
+  place-items: center !important;
+}
+
+.brand-icon img.spider-logo-img,
+.brand-icon img[src$="spider-logo.png"] {
+  width: 42px !important;
+  height: 42px !important;
+}
+
+.agenda-spider,
+.agenda-spider.spider-icon {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  overflow: hidden !important;
+}
+
+.agenda-spider img.spider-logo-img,
+.agenda-spider img[src$="spider-logo.png"] {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+@media (max-width: 620px) {
+  .brand-icon,
+  .brand-icon.spider-icon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  .brand-icon img.spider-logo-img,
+  .brand-icon img[src$="spider-logo.png"] {
+    width: 34px !important;
+    height: 34px !important;
+  }
+}
