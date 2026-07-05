@@ -35,13 +35,13 @@
     </div>
 
     <nav class="side-menu-list">
-      <button data-open="homeScreen" type="button">🏠 Início</button>
-      <button data-open="atendimentoScreen" type="button">💇‍♀️ Novo atendimento</button>
-      <button data-open="agendaScreen" type="button">📅 Agenda</button>
-      <button data-open="caixaScreen" type="button">💰 Fluxo de caixa</button>
-      <button data-open="estoqueScreen" type="button">🧴 Estoque</button>
-      <button data-open="fiadosScreen" type="button">🧾 Fiados</button>
-      <button data-open="relatoriosScreen" type="button">📊 Relatórios</button>
+      <button data-open="homeScreen" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg></span>Início</button>
+      <button data-open="atendimentoScreen" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M16 11h6"/></svg></span>Novo atendimento</button>
+      <button data-open="agendaScreen" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg></span>Agenda</button>
+      <button data-open="estoqueScreen" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8.5 12 3 3 8.5l9 5.5 9-5.5Z"/><path d="M3 8.5V16l9 5 9-5V8.5"/><path d="M12 14v7"/></svg></span>Estoque</button>
+      <button data-open="fiadosScreen" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v16l-3-2-2 2-2-2-2 2-2-2-3 2V5a2 2 0 0 1 2-2Z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg></span>Fiados</button>
+      <button data-open="caixaScreen" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M3 7h16"/><path d="M16 14h.01"/></svg></span>Fluxo de caixa</button>
+      <button data-open="relatoriosScreen" type="button"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><rect x="7" y="11" width="3" height="5" rx="1"/><rect x="12" y="7" width="3" height="9" rx="1"/><rect x="17" y="9" width="3" height="7" rx="1"/></svg></span>Relatórios</button>
     </nav>
   </aside>
 
@@ -62,40 +62,39 @@
 
     <section class="cards screen active" id="cardsScreen">
       <article class="card" data-open="atendimentoScreen">
-        <span class="card-icon">💇‍♀️</span>
+        <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M16 11h6"/></svg></span>
         <h3>Novo atendimento</h3>
         <p>Registre cliente, serviço, valor e data/hora. O pagamento é confirmado depois.</p>
       </article>
 
       <article class="card" data-open="agendaScreen">
-        <span class="card-icon">📅</span>
+        <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg></span>
         <h3>Agenda</h3>
         <p>Veja os próximos atendimentos organizados por data e horário.</p>
       </article>
 
-      <article class="card" data-open="caixaScreen">
-        <span class="card-icon">💰</span>
-        <h3>Fluxo de caixa</h3>
-        <p>Registre ganhos, gastos, saldo e lucro simplificado.</p>
-      </article>
-
       <article class="card" data-open="estoqueScreen">
-        <span class="card-icon">🧴</span>
+        <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8.5 12 3 3 8.5l9 5.5 9-5.5Z"/><path d="M3 8.5V16l9 5 9-5V8.5"/><path d="M12 14v7"/></svg></span>
         <h3>Estoque</h3>
         <p>Cadastre produtos, valor individual e quantidade atual.</p>
       </article>
 
-
-      <article class="card" data-open="relatoriosScreen">
-        <span class="card-icon">📊</span>
-        <h3>Relatórios</h3>
-        <p>Veja ganhos, gastos, lucro e quantidade de clientes mês a mês.</p>
-      </article>
-
       <article class="card" data-open="fiadosScreen">
-        <span class="card-icon">🧾</span>
+        <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10a2 2 0 0 1 2 2v16l-3-2-2 2-2-2-2 2-2-2-3 2V5a2 2 0 0 1 2-2Z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h3"/></svg></span>
         <h3>Fiados</h3>
         <p>Veja os clientes que fizeram serviço e ainda ficaram devendo.</p>
+      </article>
+
+      <article class="card" data-open="caixaScreen">
+        <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 7V6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M3 7h16"/><path d="M16 14h.01"/></svg></span>
+        <h3>Fluxo de caixa</h3>
+        <p>Registre ganhos, gastos, saldo e lucro simplificado.</p>
+      </article>
+
+      <article class="card" data-open="relatoriosScreen">
+        <span class="card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><rect x="7" y="11" width="3" height="5" rx="1"/><rect x="12" y="7" width="3" height="9" rx="1"/><rect x="17" y="9" width="3" height="7" rx="1"/></svg></span>
+        <h3>Relatórios</h3>
+        <p>Veja ganhos, gastos, lucro e quantidade de clientes mês a mês.</p>
       </article>
     </section>
 

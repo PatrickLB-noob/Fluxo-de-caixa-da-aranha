@@ -1449,3 +1449,40 @@ input[type="number"] {
     max-height: calc(100svh - 64px) !important;
   }
 }
+
+/* Ícones SVG nos cards e no menu lateral */
+.card-icon svg,
+.menu-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card-icon {
+  color: #8cc5ff;
+}
+
+.card:nth-child(odd) .card-icon {
+  color: #ff6b7b;
+}
+
+.menu-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .06);
+  color: #8cc5ff;
+}
+
+.side-menu-list button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
