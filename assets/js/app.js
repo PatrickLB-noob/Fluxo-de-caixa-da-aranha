@@ -115,6 +115,29 @@ atendimentos = atendimentos.map(normalizeAppointmentShape);
 let produtoAbertoId = null;
 let selectedAgendaDate = todayISO();
 let currentScreenId = 'homeScreen';
+
+const SCREEN_ROUTES = {
+  homeScreen: 'inicio',
+  atendimentoScreen: 'atendimento',
+  agendaScreen: 'agenda',
+  estoqueScreen: 'estoque',
+  fiadosScreen: 'fiados',
+  caixaScreen: 'caixa',
+  relatoriosScreen: 'relatorios'
+};
+
+const ROUTE_SCREENS = Object.fromEntries(
+  Object.entries(SCREEN_ROUTES).map(([screen, route]) => [route, screen])
+);
+
+function screenToHash(screenId) {
+  return `#${SCREEN_ROUTES[screenId] || SCREEN_ROUTES.homeScreen}`;
+}
+
+function hashToScreen(hash = window.location.hash) {
+  const route = String(hash || '').replace('#', '').trim();
+  return ROUTE_SCREENS[route] || 'homeScreen';
+}
 let atendimentoEditandoId = null;
 let cloudSyncStarted = false;
 let cloudStatusEl = null;
@@ -311,6 +334,8 @@ function closeSideMenu() {
 }
 
 function openScreen(id, shouldPushHistory = true) {
+  if (!SCREEN_ROUTES[id]) id = 'homeScreen';
+
   const previousScreenId = currentScreenId;
   currentScreenId = id;
   closeSideMenu();
@@ -322,16 +347,23 @@ function openScreen(id, shouldPushHistory = true) {
   if (id === 'homeScreen') homeScreens.forEach(screenId => document.getElementById(screenId).classList.add('active'));
   else document.getElementById(id)?.classList.add('active');
 
-  if (shouldPushHistory && previousScreenId !== id && history.state?.screen !== id) {
-    history.pushState({ screen: id }, '', window.location.href);
+  if (shouldPushHistory && previousScreenId !== id) {
+    const nextHash = screenToHash(id);
+    if (window.location.hash !== nextHash || history.state?.screen !== id) {
+      history.pushState({ screen: id }, '', nextHash);
+    }
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function setupMobileBackButtonBehavior() {
-  if (!history.state?.screen) {
-    history.replaceState({ screen: 'homeScreen' }, '', window.location.href);
+  const initialScreen = hashToScreen();
+  currentScreenId = initialScreen;
+  history.replaceState({ screen: initialScreen }, '', screenToHash(initialScreen));
+
+  if (initialScreen !== 'homeScreen') {
+    openScreen(initialScreen, false);
   }
 
   window.addEventListener('popstate', (event) => {
@@ -339,7 +371,7 @@ function setupMobileBackButtonBehavior() {
     if (stockModal?.classList.contains('active')) closeProductModal();
     if (appointmentEditModal?.classList.contains('active')) closeAppointmentEditModal();
 
-    const screenFromHistory = event.state?.screen || 'homeScreen';
+    const screenFromHistory = event.state?.screen || hashToScreen();
     openScreen(screenFromHistory, false);
   });
 }
