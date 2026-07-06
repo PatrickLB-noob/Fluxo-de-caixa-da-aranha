@@ -1,5 +1,5 @@
 /*
-  Teia do Caixa 4.0
+  Teia do Caixa 5.0
   Arquivo principal do aplicativo.
 
   Organização desta versão:
@@ -7,8 +7,7 @@
   - assets/js/app.js: regras do app, LocalStorage e interações
   - assets/img/spider-logo.png: marca/ícone da aranha
 
-  Observação: o armazenamento ainda está em LocalStorage.
-  A próxima etapa é trocar as funções save*/load por Firestore.
+  Observação: o armazenamento usa LocalStorage como fallback e Firestore como nuvem em tempo real.
 */
 
 const CASH_STORAGE_KEY = 'teiaDoCaixaLancamentos';
@@ -117,6 +116,8 @@ let produtoAbertoId = null;
 let selectedAgendaDate = todayISO();
 let currentScreenId = 'homeScreen';
 let atendimentoEditandoId = null;
+let cloudSyncStarted = false;
+let cloudStatusEl = null;
 
 
 // =============================
@@ -205,12 +206,59 @@ function normalizeAppointmentShape(item) {
 
 
 // =============================
-// Camada de armazenamento local
+// Camada de armazenamento local + nuvem
 // =============================
-function saveCash() { localStorage.setItem(CASH_STORAGE_KEY, JSON.stringify(lancamentos)); }
-function saveProducts() { localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(produtos)); }
-function saveServices() { localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify(servicos)); }
-function saveAppointments() { localStorage.setItem(APPOINTMENT_STORAGE_KEY, JSON.stringify(atendimentos)); }
+function ensureCloudStatusElement() {
+  if (cloudStatusEl) return cloudStatusEl;
+
+  cloudStatusEl = document.createElement('div');
+  cloudStatusEl.className = 'cloud-status offline';
+  cloudStatusEl.textContent = 'Local';
+  document.body.appendChild(cloudStatusEl);
+  return cloudStatusEl;
+}
+
+function setCloudStatus(status, message) {
+  const el = ensureCloudStatusElement();
+  el.className = `cloud-status ${status}`;
+  el.textContent = message;
+}
+
+function saveCloudCollection(name, items) {
+  if (!window.TeiaFirebase?.saveCollection) {
+    setCloudStatus('offline', 'Local');
+    return;
+  }
+
+  setCloudStatus('syncing', 'Sincronizando');
+  window.TeiaFirebase.saveCollection(name, items)
+    .then(() => setCloudStatus('online', 'Nuvem'))
+    .catch((error) => {
+      console.warn(`Erro ao salvar ${name} no Firebase:`, error);
+      setCloudStatus('offline', 'Local');
+      showToast('Dados salvos neste aparelho. Firebase falhou por enquanto.');
+    });
+}
+
+function saveCash() {
+  localStorage.setItem(CASH_STORAGE_KEY, JSON.stringify(lancamentos));
+  saveCloudCollection('lancamentos', lancamentos);
+}
+
+function saveProducts() {
+  localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(produtos));
+  saveCloudCollection('produtos', produtos);
+}
+
+function saveServices() {
+  localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify(servicos));
+  saveCloudCollection('servicos', servicos);
+}
+
+function saveAppointments() {
+  localStorage.setItem(APPOINTMENT_STORAGE_KEY, JSON.stringify(atendimentos));
+  saveCloudCollection('atendimentos', atendimentos);
+}
 
 function getAppointmentStatusInfo(status) {
   if (status === 'pago') return { className: 'entrada', label: 'Pago' };
@@ -1208,12 +1256,111 @@ if (agendaDiaLista) agendaDiaLista.addEventListener('click', (event) => {
   renderSchedule();
 });
 
+function applyCloudCollection(name, items) {
+  if (!Array.isArray(items)) return;
+
+  if (name === 'lancamentos') {
+    lancamentos = items;
+    localStorage.setItem(CASH_STORAGE_KEY, JSON.stringify(lancamentos));
+    renderFinanceiro();
+    return;
+  }
+
+  if (name === 'produtos') {
+    produtos = items.map(normalizeProductShape);
+    localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(produtos));
+    renderEstoque();
+    renderOperacional();
+    return;
+  }
+
+  if (name === 'servicos') {
+    servicos = items.map(normalizeServiceShape);
+    localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify(servicos));
+    renderOperacional();
+    return;
+  }
+
+  if (name === 'atendimentos') {
+    atendimentos = items.map(normalizeAppointmentShape);
+    localStorage.setItem(APPOINTMENT_STORAGE_KEY, JSON.stringify(atendimentos));
+    renderOperacional();
+    renderReports();
+  }
+}
+
+function collectionHasLocalData(name) {
+  if (name === 'lancamentos') return lancamentos.length > 0;
+  if (name === 'produtos') return produtos.length > 0;
+  if (name === 'servicos') return servicos.length > 0;
+  if (name === 'atendimentos') return atendimentos.length > 0;
+  return false;
+}
+
+function getLocalCollection(name) {
+  if (name === 'lancamentos') return lancamentos;
+  if (name === 'produtos') return produtos;
+  if (name === 'servicos') return servicos;
+  if (name === 'atendimentos') return atendimentos;
+  return [];
+}
+
+async function syncFromFirebase() {
+  if (cloudSyncStarted) return;
+  cloudSyncStarted = true;
+
+  if (!window.TeiaFirebase?.loadAll || !window.TeiaFirebase?.subscribeAll) {
+    console.warn('Firebase não encontrado. Usando localStorage.');
+    setCloudStatus('offline', 'Local');
+    return;
+  }
+
+  setCloudStatus('syncing', 'Conectando');
+
+  try {
+    const cloudData = await window.TeiaFirebase.loadAll();
+    const uploads = [];
+    let loadedFromCloud = false;
+
+    window.TeiaFirebase.collections.forEach((name) => {
+      const cloudItems = cloudData[name];
+
+      if (Array.isArray(cloudItems)) {
+        applyCloudCollection(name, cloudItems);
+        loadedFromCloud = true;
+      } else if (collectionHasLocalData(name)) {
+        uploads.push(window.TeiaFirebase.saveCollection(name, getLocalCollection(name)));
+      }
+    });
+
+    if (uploads.length) await Promise.all(uploads);
+
+    window.TeiaFirebase.subscribeAll((name, items, metadata) => {
+      if (Array.isArray(items)) applyCloudCollection(name, items);
+      setCloudStatus(metadata?.fromCache ? 'syncing' : 'online', metadata?.fromCache ? 'Offline/cache' : 'Nuvem');
+    }, (error) => {
+      console.warn('Erro em sincronização em tempo real:', error);
+      setCloudStatus('offline', 'Local');
+      showToast('Sincronização em tempo real falhou. Usando dados locais.');
+    });
+
+    setCloudStatus('online', 'Nuvem');
+    showToast(loadedFromCloud ? 'Dados sincronizados com a nuvem.' : 'Firebase conectado. Dados iniciais enviados.');
+  } catch (error) {
+    console.warn('Erro ao sincronizar com Firebase:', error);
+    setCloudStatus('offline', 'Local');
+    showToast('Não consegui conectar ao Firebase. Usando dados deste aparelho.');
+  }
+}
+
+
 dataInput.value = todayISO();
 atendimentoDataHoraInput.value = nowDateTimeLocal();
 updateTypeVisual();
 renderFinanceiro();
 renderEstoque();
 renderOperacional();
+syncFromFirebase();
 
 
 // PWA: permite instalar o site no celular e manter os arquivos principais em cache.

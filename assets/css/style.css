@@ -1568,3 +1568,36 @@ img[src$="spider-logo.png"] {
     height: 34px !important;
   }
 }
+
+/* Indicador discreto de sincronização com Firebase */
+.cloud-status {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 60;
+  padding: 8px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(5, 7, 13, .82);
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .24);
+}
+
+.cloud-status.online {
+  color: var(--green);
+  border-color: rgba(52, 211, 153, .35);
+}
+
+.cloud-status.syncing {
+  color: var(--yellow);
+  border-color: rgba(251, 191, 36, .35);
+}
+
+.cloud-status.offline {
+  color: #ff8b98;
+  border-color: rgba(255, 38, 60, .35);
+}

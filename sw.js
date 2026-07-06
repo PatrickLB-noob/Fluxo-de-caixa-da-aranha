@@ -1,4 +1,4 @@
-const CACHE_NAME = 'teia-do-caixa-v4-1';
+const CACHE_NAME = 'teia-do-caixa-v5-0';
 const APP_SHELL = [
   './',
   './index.html',
