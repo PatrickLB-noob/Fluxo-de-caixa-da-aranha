@@ -333,10 +333,8 @@ function closeSideMenu() {
   sideMenu?.setAttribute('aria-hidden', 'true');
 }
 
-function openScreen(id, shouldPushHistory = true) {
+function renderScreen(id) {
   if (!SCREEN_ROUTES[id]) id = 'homeScreen';
-
-  const previousScreenId = currentScreenId;
   currentScreenId = id;
   closeSideMenu();
 
@@ -347,32 +345,46 @@ function openScreen(id, shouldPushHistory = true) {
   if (id === 'homeScreen') homeScreens.forEach(screenId => document.getElementById(screenId).classList.add('active'));
   else document.getElementById(id)?.classList.add('active');
 
-  if (shouldPushHistory && previousScreenId !== id) {
-    const nextHash = screenToHash(id);
-    if (window.location.hash !== nextHash || history.state?.screen !== id) {
-      history.pushState({ screen: id }, '', nextHash);
-    }
-  }
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function setupMobileBackButtonBehavior() {
-  const initialScreen = hashToScreen();
-  currentScreenId = initialScreen;
-  history.replaceState({ screen: initialScreen }, '', screenToHash(initialScreen));
+function openScreen(id, shouldPushHistory = true) {
+  if (!SCREEN_ROUTES[id]) id = 'homeScreen';
 
-  if (initialScreen !== 'homeScreen') {
-    openScreen(initialScreen, false);
+  const nextHash = screenToHash(id);
+  const currentHash = window.location.hash || screenToHash('homeScreen');
+
+  if (shouldPushHistory && currentHash !== nextHash) {
+    // Trocar o hash cria histórico real no Chrome/Android/PWA.
+    // Assim, o botão Voltar do celular retorna para a tela anterior antes de fechar o app.
+    window.location.hash = nextHash;
+    return;
   }
 
-  window.addEventListener('popstate', (event) => {
-    if (sideMenu?.classList.contains('active')) closeSideMenu();
-    if (stockModal?.classList.contains('active')) closeProductModal();
-    if (appointmentEditModal?.classList.contains('active')) closeAppointmentEditModal();
+  renderScreen(id);
+}
 
-    const screenFromHistory = event.state?.screen || hashToScreen();
-    openScreen(screenFromHistory, false);
+function closeFloatingPanels() {
+  if (sideMenu?.classList.contains('active')) closeSideMenu();
+  if (stockModal?.classList.contains('active')) closeProductModal();
+  if (appointmentEditModal?.classList.contains('active')) closeAppointmentEditModal();
+}
+
+function setupMobileBackButtonBehavior() {
+  if (!window.location.hash) {
+    history.replaceState({ screen: 'homeScreen' }, '', screenToHash('homeScreen'));
+  }
+
+  renderScreen(hashToScreen());
+
+  window.addEventListener('hashchange', () => {
+    closeFloatingPanels();
+    renderScreen(hashToScreen());
+  });
+
+  window.addEventListener('popstate', () => {
+    closeFloatingPanels();
+    renderScreen(hashToScreen());
   });
 }
 
