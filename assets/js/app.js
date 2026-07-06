@@ -310,15 +310,38 @@ function closeSideMenu() {
   sideMenu?.setAttribute('aria-hidden', 'true');
 }
 
-function openScreen(id) {
+function openScreen(id, shouldPushHistory = true) {
+  const previousScreenId = currentScreenId;
   currentScreenId = id;
   closeSideMenu();
+
   if (id === 'relatoriosScreen') renderReports();
   if (id === 'fiadosScreen') renderFiados();
+
   screens.forEach(screen => screen.classList.remove('active'));
   if (id === 'homeScreen') homeScreens.forEach(screenId => document.getElementById(screenId).classList.add('active'));
-  else document.getElementById(id).classList.add('active');
+  else document.getElementById(id)?.classList.add('active');
+
+  if (shouldPushHistory && previousScreenId !== id && history.state?.screen !== id) {
+    history.pushState({ screen: id }, '', window.location.href);
+  }
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setupMobileBackButtonBehavior() {
+  if (!history.state?.screen) {
+    history.replaceState({ screen: 'homeScreen' }, '', window.location.href);
+  }
+
+  window.addEventListener('popstate', (event) => {
+    if (sideMenu?.classList.contains('active')) closeSideMenu();
+    if (stockModal?.classList.contains('active')) closeProductModal();
+    if (appointmentEditModal?.classList.contains('active')) closeAppointmentEditModal();
+
+    const screenFromHistory = event.state?.screen || 'homeScreen';
+    openScreen(screenFromHistory, false);
+  });
 }
 
 function getTotals(filterFn) {
@@ -1354,6 +1377,7 @@ async function syncFromFirebase() {
 }
 
 
+setupMobileBackButtonBehavior();
 dataInput.value = todayISO();
 atendimentoDataHoraInput.value = nowDateTimeLocal();
 updateTypeVisual();
