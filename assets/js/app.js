@@ -1,3 +1,16 @@
+/*
+  Teia do Caixa 4.0
+  Arquivo principal do aplicativo.
+
+  Organização desta versão:
+  - assets/css/style.css: visual completo do sistema
+  - assets/js/app.js: regras do app, LocalStorage e interações
+  - assets/img/spider-logo.png: marca/ícone da aranha
+
+  Observação: o armazenamento ainda está em LocalStorage.
+  A próxima etapa é trocar as funções save*/load por Firestore.
+*/
+
 const CASH_STORAGE_KEY = 'teiaDoCaixaLancamentos';
 const PRODUCT_STORAGE_KEY = 'teiaDoCaixaProdutos';
 const SERVICE_STORAGE_KEY = 'teiaDoCaixaServicos';
@@ -105,6 +118,10 @@ let selectedAgendaDate = todayISO();
 let currentScreenId = 'homeScreen';
 let atendimentoEditandoId = null;
 
+
+// =============================
+// Utilidades gerais
+// =============================
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add('show');
@@ -148,6 +165,10 @@ function normalizeText(text) {
   return String(text || '').trim().toLowerCase();
 }
 
+
+// =============================
+// Normalização dos dados salvos
+// =============================
 function normalizeProductShape(produto) {
   const quantidade = Number(produto.quantidade) || 0;
   const valorIndividual = Number(produto.valorIndividual ?? produto.custoMedio ?? produto.valor ?? 0) || 0;
@@ -182,6 +203,10 @@ function normalizeAppointmentShape(item) {
   };
 }
 
+
+// =============================
+// Camada de armazenamento local
+// =============================
 function saveCash() { localStorage.setItem(CASH_STORAGE_KEY, JSON.stringify(lancamentos)); }
 function saveProducts() { localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(produtos)); }
 function saveServices() { localStorage.setItem(SERVICE_STORAGE_KEY, JSON.stringify(servicos)); }
@@ -221,6 +246,10 @@ function displayServiceName(item) {
   return (item?.servicoNome || '').trim() || 'Serviço';
 }
 
+
+// =============================
+// Navegação e menu lateral
+// =============================
 function openSideMenu() {
   sideMenu?.classList.add('active');
   sideMenuOverlay?.classList.add('active');
@@ -275,6 +304,10 @@ function getFilteredLancamentos() {
   return lancamentos;
 }
 
+
+// =============================
+// Fluxo de caixa
+// =============================
 function renderLancamentos() {
   const filtered = getFilteredLancamentos().sort((a, b) => b.id - a.id);
   transactionsBox.innerHTML = '';
@@ -317,6 +350,10 @@ function updateCategoryOptions() {
   if (options.includes(current)) categoriaInput.value = current;
 }
 
+
+// =============================
+// Estoque
+// =============================
 function addProduct(nome, valorIndividual) {
   const nomeNormalizado = normalizeText(nome);
   const produtoExistente = produtos.find(produto => normalizeText(produto.nome) === nomeNormalizado);
@@ -528,6 +565,10 @@ function formatShortWeekDay(dateString) {
   return dateFromISO(dateString).toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
 }
 
+
+// =============================
+// Atendimentos e agenda
+// =============================
 function renderAppointments() {
   if (!appointmentsList) return;
   const sorted = getActiveAppointments().slice().sort((a, b) => b.dataHora.localeCompare(a.dataHora));
@@ -575,7 +616,7 @@ function renderAgendaDayStrip() {
     button.dataset.agendaDate = date;
     button.innerHTML = `
       <span class="agenda-spider spider-icon" aria-label="Dia com atendimento">
-        <img class="spider-logo-img" src="spider-logo.png" alt="" width="18" height="18" />
+        <img class="spider-logo-img" src="assets/img/spider-logo.png" alt="" width="18" height="18" />
       </span>
       <span>${formatShortWeekDay(date)}</span>
       <strong>${date.slice(8, 10)}</strong>
@@ -765,6 +806,10 @@ function renderFiados() {
   });
 }
 
+
+// =============================
+// Relatórios
+// =============================
 function renderReports() {
   const months = getReportMonths();
   renderReportMonthOptions(months);
@@ -775,6 +820,10 @@ function renderReports() {
 
 function renderOperacional() { renderAppointments(); renderSchedule(); renderFiados(); renderReports(); }
 
+
+// =============================
+// Eventos dos formulários e botões
+// =============================
 cashForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const valor = Number(valorInput.value);
@@ -792,7 +841,11 @@ cashForm.addEventListener('submit', (event) => {
   saveCash();
   renderFinanceiro();
   cashForm.reset();
-  dataInput.value = todayISO();
+  
+// =============================
+// Inicialização
+// =============================
+dataInput.value = todayISO();
   document.querySelector('input[value="entrada"]').checked = true;
   updateTypeVisual();
   descricaoInput.focus();
@@ -1161,3 +1214,12 @@ updateTypeVisual();
 renderFinanceiro();
 renderEstoque();
 renderOperacional();
+
+
+// PWA: permite instalar o site no celular e manter os arquivos principais em cache.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch((error) => console.warn('Service Worker não registrado:', error));
+  });
+}
