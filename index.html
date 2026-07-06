@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Teia do Caixa 5.0</title>
-  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Teia do Caixa 5.1</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
   <meta name="theme-color" content="#05070d" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Teia do Caixa" />
-  <link rel="apple-touch-icon" href="assets/icons/icon-180.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="apple-touch-icon" href="./assets/icons/icon-180.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512.png" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
   <div class="web-bg web-bg-top"></div>
@@ -25,10 +26,10 @@
 
     <div class="brand">
       <span class="brand-icon spider-icon" aria-hidden="true">
-        <img class="spider-logo-img" src="assets/img/spider-logo.png" alt="" width="42" height="42" />
+        <img class="spider-logo-img" src="./assets/img/spider-logo.png" alt="" width="42" height="42" />
       </span>
       <div>
-        <h1>Teia do Caixa <span>5.0</span></h1>
+        <h1>Teia do Caixa <span>5.1</span></h1>
         <p>Fluxo de caixa e estoque inicial para salão</p>
       </div>
     </div>
@@ -61,12 +62,13 @@
       <p class="tag">Sistema em desenvolvimento</p>
       <h2>Com grandes serviços vêm grandes controles.</h2>
       <p>
-        Agora a versão 5.0 sincroniza agenda, estoque, caixa e fiados com Firebase.
+        Agora a versão 5.1 sincroniza dados com Firebase e pode ser instalada como aplicativo.
       </p>
 
       <div class="hero-actions">
         <button class="primary-btn" data-open="caixaScreen">Abrir fluxo de caixa</button>
         <button class="secondary-btn" data-open="atendimentoScreen">Novo atendimento</button>
+        <button class="install-btn" id="installAppBtn" type="button" hidden>Instalar app</button>
       </div>
     </section>
 
@@ -545,7 +547,7 @@
   <div class="toast" id="toast">Mensagem</div>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-  <script src="assets/js/firebase-init.js"></script>
-  <script src="assets/js/app.js"></script>
+  <script src="./assets/js/firebase-init.js"></script>
+  <script src="./assets/js/app.js"></script>
 </body>
 </html>

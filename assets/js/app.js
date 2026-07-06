@@ -1370,3 +1370,41 @@ if ('serviceWorker' in navigator) {
       .catch((error) => console.warn('Service Worker não registrado:', error));
   });
 }
+
+// PWA: botão de instalação com visual de app de verdade.
+let deferredInstallPrompt = null;
+const installAppBtn = document.getElementById('installAppBtn');
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  if (installAppBtn) installAppBtn.hidden = false;
+});
+
+if (installAppBtn) {
+  installAppBtn.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) {
+      showToast('Se o botão instalar não aparecer, use o menu do Chrome: ⋮ > Instalar app.');
+      return;
+    }
+
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installAppBtn.hidden = true;
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  if (installAppBtn) installAppBtn.hidden = true;
+  showToast('App instalado com sucesso.');
+});
+
+// Atalhos do manifesto: abre direto em telas úteis quando iniciado pelo ícone/atalho.
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  const shortcut = params.get('atalho');
+  if (shortcut === 'agenda') openScreen('agendaScreen');
+  if (shortcut === 'atendimento') openScreen('atendimentoScreen');
+});
